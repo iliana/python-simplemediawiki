@@ -46,13 +46,22 @@ class MediaWiki():
 
     api_url: URL to api.php (usually similar to http://example.com/w/api.php)
     """
-    _cj = cookielib.CookieJar()
     _high_limits = None
     _namespaces = None
     _psuedo_namespaces = None
 
-    def __init__(self, api_url):
+    def __init__(self, api_url, cookie_file=None):
         self._api_url = api_url
+        if cookie_file:
+            self._cj = cookielib.MozillaCookieJar(cookie_file)
+            try:
+                self._cj.load()
+            except IOError:
+                self._cj.save()
+                self._cj.load()
+        else:
+            self._cj = cookielib.CookieJar()
+        self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
 
     def call(self, params):
         """
@@ -60,10 +69,11 @@ class MediaWiki():
         returned by the API.
         """
         params['format'] = 'json'
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
         request = urllib2.Request(self._api_url, urllib.urlencode(params))
         request.add_header('Accept-encoding', 'gzip')
-        response = opener.open(request)
+        response = self._opener.open(request)
+        if isinstance(self._cj, cookielib.MozillaCookieJar):
+            self._cj.save()
         if response.headers.get('Content-Encoding') == 'gzip':
             compressed = StringIO(response.read())
             gzipper = gzip.GzipFile(fileobj=compressed)
