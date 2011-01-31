@@ -153,4 +153,4 @@ class MediaWiki():
 
 
 __author__ = 'Ian Weller <ian@ianweller.org>'
-__version__ = '1.0'
+__version__ = '1.0.1'
