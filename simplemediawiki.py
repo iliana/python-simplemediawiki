@@ -50,7 +50,7 @@ class MediaWiki():
     _namespaces = None
     _psuedo_namespaces = None
 
-    def __init__(self, api_url, cookie_file=None):
+    def __init__(self, api_url, cookie_file=None, user_agent=DEFAULT_UA):
         self._api_url = api_url
         if cookie_file:
             self._cj = cookielib.MozillaCookieJar(cookie_file)
@@ -62,6 +62,7 @@ class MediaWiki():
         else:
             self._cj = cookielib.CookieJar()
         self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
+        self._opener.addheaders = [('User-agent', user_agent)]
 
     def _fetch_http(self, url, params):
         request = urllib2.Request(url, urllib.urlencode(params))
@@ -196,3 +197,6 @@ class MediaWiki():
 
 __author__ = 'Ian Weller <ian@ianweller.org>'
 __version__ = '1.0.1'
+DEFAULT_UA = 'python-simplemediawiki/%s ' + \
+        '+https://github.com/ianweller/python-simplemediawiki' \
+        % __version__
