@@ -138,11 +138,21 @@ class MediaWiki():
             data['lgtoken'] = token
         result = self.call(data)
         if result['login']['result'] == 'Success':
+            self._high_limits = None
             return True
         elif result['login']['result'] == 'NeedToken' and not token:
             return self.login(user, passwd, result['login']['token'])
         else:
             return False
+
+    def logout(self):
+        """
+        Conveinence function for logging out of the wiki.
+        """
+        data = {'action': 'logout'}
+        self.call(data)
+        self._high_limits = None
+        return True
 
     def limits(self, low, high):
         """
