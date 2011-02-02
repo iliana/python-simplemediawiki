@@ -63,13 +63,8 @@ class MediaWiki():
             self._cj = cookielib.CookieJar()
         self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
 
-    def call(self, params):
-        """
-        Make a call to the wiki. Returns a dictionary that represents the JSON
-        returned by the API.
-        """
-        params['format'] = 'json'
-        request = urllib2.Request(self._api_url, urllib.urlencode(params))
+    def _fetch_http(self, url, params):
+        request = urllib2.Request(url, urllib.urlencode(params))
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
         if isinstance(self._cj, cookielib.MozillaCookieJar):
@@ -80,7 +75,54 @@ class MediaWiki():
             data = gzipper.read()
         else:
             data = response.read()
-        return json.loads(data)
+        return data
+
+    def call(self, params):
+        """
+        Make a call to the wiki. Returns a dictionary that represents the JSON
+        returned by the API.
+        """
+        params['format'] = 'json'
+        return json.loads(self._fetch_http(self._api_url, params))
+
+    def normalize_api_url(self):
+        """
+        This function checks the given URL for a correct API endpoint and
+        returns that URL, while also helpfully setting this object's API URL to
+        it. If it can't magically conjure an API endpoint, it returns False.
+        """
+        data, data_json = self._normalize_api_url_tester(self._api_url)
+        if data_json:
+            return self._api_url
+        else:
+            # if there's an index.php in the URL, we might find the API
+            if 'index.php' in self._api_url:
+                test_api_url = self._api_url.split('index.php')[0] + 'api.php'
+                print test_api_url
+                test_data, test_data_json = \
+                        self._normalize_api_url_tester(test_api_url)
+                print (test_data, test_data_json)
+                if test_data_json:
+                    self._api_url = test_api_url
+                    return self._api_url
+            return False
+
+    def _normalize_api_url_tester(self, api_url):
+        data = self._fetch_http(api_url, {'action': 'query',
+                                          'meta': 'siteinfo',
+                                          'siprop': 'general',
+                                          'format': 'json'})
+        try:
+            data_json = json.loads(data)
+            # may as well set the version
+            try:
+                version_string = data_json['query']['general']['generator']
+                self._mediawiki_version = version_string.split(' ', 1)[1]
+            except KeyError:
+                pass
+            return (data, data_json)
+        except ValueError:
+            return (data, None)
 
     def login(self, user, passwd, token=None):
         """
