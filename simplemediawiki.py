@@ -49,6 +49,7 @@ class MediaWiki():
     _high_limits = None
     _namespaces = None
     _psuedo_namespaces = None
+    _mediawiki_version = None
 
     def __init__(self, api_url, cookie_file=None, user_agent=DEFAULT_UA):
         self._api_url = api_url
@@ -61,7 +62,9 @@ class MediaWiki():
                 self._cj.load()
         else:
             self._cj = cookielib.CookieJar()
-        self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self._cj))
+        self._opener = urllib2.build_opener(
+                urllib2.HTTPCookieProcessor(self._cj)
+        )
         self._opener.addheaders = [('User-agent', user_agent)]
 
     def _fetch_http(self, url, params):
