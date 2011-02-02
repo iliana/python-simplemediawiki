@@ -1,6 +1,6 @@
 from distutils.core import setup
 setup(name='simplemediawiki',
-      version='1.0.1',
+      version='1.0.2',
       description='Extremely low-level wrapper to the MediaWiki API',
       author='Ian Weller',
       author_email='ian@ianweller.org',

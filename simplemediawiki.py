@@ -209,7 +209,7 @@ class MediaWiki():
 
 
 __author__ = 'Ian Weller <ian@ianweller.org>'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 DEFAULT_UA = 'python-simplemediawiki/%s ' + \
         '+https://github.com/ianweller/python-simplemediawiki' \
         % __version__
