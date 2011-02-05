@@ -39,6 +39,12 @@ from StringIO import StringIO
 import urllib
 import urllib2
 
+__author__ = 'Ian Weller <ian@ianweller.org>'
+__version__ = '1.0.2'
+DEFAULT_UA = ('python-simplemediawiki/%s '
+              '+https://github.com/ianweller/python-simplemediawiki') \
+        % __version__
+
 
 class MediaWiki():
     """
@@ -206,10 +212,3 @@ class MediaWiki():
         objects.
         """
         return iso8601.parse_date(date)
-
-
-__author__ = 'Ian Weller <ian@ianweller.org>'
-__version__ = '1.0.2'
-DEFAULT_UA = 'python-simplemediawiki/%s ' + \
-        '+https://github.com/ianweller/python-simplemediawiki' \
-        % __version__
