@@ -55,7 +55,6 @@ class MediaWiki():
     _high_limits = None
     _namespaces = None
     _psuedo_namespaces = None
-    _mediawiki_version = None
 
     def __init__(self, api_url, cookie_file=None, user_agent=DEFAULT_UA):
         self._api_url = api_url
@@ -111,17 +110,9 @@ class MediaWiki():
             in order to test whether the given URL will return JSON.
             """
             data = self._fetch_http(api_url, {'action': 'query',
-                                              'meta': 'siteinfo',
-                                              'siprop': 'general',
-                                              'format': 'json'})
+                                              'meta': 'siteinfo'})
             try:
                 data_json = json.loads(data)
-                # may as well set the version
-                try:
-                    version_string = data_json['query']['general']['generator']
-                    self._mediawiki_version = version_string.split(' ', 1)[1]
-                except KeyError:
-                    pass
                 return (data, data_json)
             except ValueError:
                 return (data, None)
