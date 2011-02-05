@@ -74,6 +74,10 @@ class MediaWiki():
         self._opener.addheaders = [('User-agent', user_agent)]
 
     def _fetch_http(self, url, params):
+        """
+        Standard HTTP request handler for this class with gzip and cookie
+        support.
+        """
         request = urllib2.Request(url, urllib.urlencode(params))
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
