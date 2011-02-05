@@ -101,7 +101,28 @@ class MediaWiki():
         returns that URL, while also helpfully setting this object's API URL to
         it. If it can't magically conjure an API endpoint, it returns False.
         """
-        data, data_json = self._normalize_api_url_tester(self._api_url)
+        def tester(self, api_url):
+            """
+            Attempts to fetch general information about the MediaWiki instance
+            in order to test whether the given URL will return JSON.
+            """
+            data = self._fetch_http(api_url, {'action': 'query',
+                                              'meta': 'siteinfo',
+                                              'siprop': 'general',
+                                              'format': 'json'})
+            try:
+                data_json = json.loads(data)
+                # may as well set the version
+                try:
+                    version_string = data_json['query']['general']['generator']
+                    self._mediawiki_version = version_string.split(' ', 1)[1]
+                except KeyError:
+                    pass
+                return (data, data_json)
+            except ValueError:
+                return (data, None)
+
+        data, data_json = tester(self, self._api_url)
         if data_json:
             return self._api_url
         else:
@@ -109,30 +130,13 @@ class MediaWiki():
             if 'index.php' in self._api_url:
                 test_api_url = self._api_url.split('index.php')[0] + 'api.php'
                 print test_api_url
-                test_data, test_data_json = \
-                        self._normalize_api_url_tester(test_api_url)
+                test_data, test_data_json = tester(self, test_api_url)
                 print (test_data, test_data_json)
                 if test_data_json:
                     self._api_url = test_api_url
                     return self._api_url
             return False
 
-    def _normalize_api_url_tester(self, api_url):
-        data = self._fetch_http(api_url, {'action': 'query',
-                                          'meta': 'siteinfo',
-                                          'siprop': 'general',
-                                          'format': 'json'})
-        try:
-            data_json = json.loads(data)
-            # may as well set the version
-            try:
-                version_string = data_json['query']['general']['generator']
-                self._mediawiki_version = version_string.split(' ', 1)[1]
-            except KeyError:
-                pass
-            return (data, data_json)
-        except ValueError:
-            return (data, None)
 
     def login(self, user, passwd, token=None):
         """
