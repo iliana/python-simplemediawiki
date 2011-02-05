@@ -33,7 +33,7 @@ of namespaces are provided for your convenience.
 
 import cookielib
 import gzip
-from iso8601 import iso8601
+import iso8601.iso8601 as iso8601
 import json
 from StringIO import StringIO
 import urllib
