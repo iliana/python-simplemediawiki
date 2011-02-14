@@ -35,6 +35,7 @@ import cookielib
 import gzip
 import iso8601
 import json
+from kitchen.text.converters import to_bytes
 from StringIO import StringIO
 import urllib
 import urllib2
@@ -77,7 +78,11 @@ class MediaWiki():
         Standard HTTP request handler for this class with gzip and cookie
         support.
         """
-        request = urllib2.Request(url, urllib.urlencode(params))
+        params['format'] = 'json'
+        # urllib.urlencode expects str objects, not unicode
+        fixed = dict([(to_bytes(b[0]), to_bytes(b[1]))
+                      for b in params.items()])
+        request = urllib2.Request(url, urllib.urlencode(fixed))
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
         if isinstance(self._cj, cookielib.MozillaCookieJar):
@@ -95,7 +100,6 @@ class MediaWiki():
         Make a call to the wiki. Returns a dictionary that represents the JSON
         returned by the API.
         """
-        params['format'] = 'json'
         return json.loads(self._fetch_http(self._api_url, params))
 
     def normalize_api_url(self):

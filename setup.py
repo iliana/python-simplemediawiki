@@ -13,5 +13,6 @@ setup(name='simplemediawiki',
       ],
       requires=[
           'iso8601',
+          'kitchen',
       ],
       py_modules=['simplemediawiki'])
