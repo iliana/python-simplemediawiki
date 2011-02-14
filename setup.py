@@ -17,7 +17,6 @@ setup(name='simplemediawiki',
           'License (LGPL)',
       ],
       requires=[
-          'iso8601',
           'kitchen',
       ],
       py_modules=['simplemediawiki'],
