@@ -15,20 +15,23 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simplemediawiki is an extremely low-level wrapper to the MediaWiki API. It
-automatically handles cookies and gzip compression so that you can make basic
-calls to the API in the easiest way possible. It also provides a few functions
-to make day-to-day API access easier.
+:py:mod:`simplemediawiki` is an extremely low-level wrapper to the `MediaWiki
+API`_. It automatically handles cookies and gzip compression so that you can
+make basic calls to the API in the easiest and fastest way possible. It also
+provides a few functions to make day-to-day API access easier.
 
-To use this module, instantiate a MediaWiki object, passing it the URL of
-api.php for the wiki you want to work with. Calls go through MediaWiki.call().
-A generic login wrapper as well as functions to determine limits and get a list
-of namespaces are provided for your convenience.
+To use this module, initialize a :py:class:`MediaWiki` object, passing it the
+URL of api.php for the wiki you want to work with. Calls go through
+:py:func:`MediaWiki.call`. A generic login wrapper as well as functions to
+determine limits and get a list of namespaces are provided for your
+convenience.
 
 >>> from simplemediawiki import MediaWiki
 >>> wiki = MediaWiki('http://en.wikipedia.org/w/api.php')
 >>> wiki.call({'action': 'query', 'prop': 'revisions', 'titles': 'Main Page'})
 {u'query': {u'pages': {...}}}
+
+.. _`MediaWiki API`: http://www.mediawiki.org/wiki/API:Main_page
 """
 
 import cookielib
@@ -49,9 +52,31 @@ DEFAULT_UA = ('python-simplemediawiki/%s '
 
 class MediaWiki():
     """
-    Class to represent a MediaWiki installation with an enabled API.
+    Create a new object to access a wiki via *api_url*.
 
-    api_url: URL to api.php (usually similar to http://example.com/w/api.php)
+    If you're interested in saving session data across multiple
+    :py:class:`MediaWiki` objects, provide a filename *cookie_file* to where
+    you want to save the cookies.
+
+    Applications that use simplemediawiki should change the *user_agent*
+    argument to something that can help identify the application if it is
+    misbehaving. It's recommended to use :py:func:`build_user_agent` to create
+    a `User-Agent`_ string that will be most helpful to server administrators.
+    Wikimedia sites enforce using a correct User-Agent; you should read
+    `Wikimedia's User-Agent policy`_ if you plan to be accessing those wikis.
+
+    .. tip::
+       If a user of your application may not know how to get the correct API
+       URL for their MediaWiki, you can try getting the right one with
+       :py:func:`MediaWiki.normalize_api_url`.
+
+    :param api_url: URL for the path to the API endpoint
+    :param cookie_file: path to a :py:class:`cookielib.MozillaCookieJar` file
+    :param user_agent: string sent as ``User-Agent`` header to web server
+
+    .. _`User-Agent`: http://en.wikipedia.org/wiki/User_agent
+    .. _`Wikimedia's User-Agent policy`:
+        http://meta.wikimedia.org/wiki/User-Agent_policy
     """
     _high_limits = None
     _namespaces = None
@@ -76,7 +101,15 @@ class MediaWiki():
     def _fetch_http(self, url, params):
         """
         Standard HTTP request handler for this class with gzip and cookie
-        support.
+        support. This was separated out of :py:func:`MediaWiki.call` to make
+        :py:func:`MediaWiki.normalize_api_url` useful.
+
+        .. note::
+           This function should not be used. Use :py:func:`MediaWiki.call`
+           instead.
+
+        :param url: URL to send POST request to
+        :param params: dictionary of query string parameters
         """
         params['format'] = 'json'
         # urllib.urlencode expects str objects, not unicode
@@ -97,21 +130,32 @@ class MediaWiki():
 
     def call(self, params):
         """
-        Make a call to the wiki. Returns a dictionary that represents the JSON
-        returned by the API.
+        Make an API call to the wiki. *params* is a dictionary of query string
+        arguments. For example, to get basic information about the wiki, run:
+
+        >>> wiki.call({'action': 'query', 'meta': 'siteinfo'})
+
+        which would make a call to
+        ``http://domain/w/api.php?action=query&meta=siteinfo&format=json``
+        (except the query string would be sent in POST).
+
+        :param params: dictionary of query string parameters
+        :returns: dictionary containing API response
         """
         return json.loads(self._fetch_http(self._api_url, params))
 
     def normalize_api_url(self):
         """
-        This function checks the given URL for a correct API endpoint and
-        returns that URL, while also helpfully setting this object's API URL to
-        it. If it can't magically conjure an API endpoint, it returns False.
+        Checks that the API URL used to initialize this object actually returns
+        JSON. If it doesn't, make some educated guesses and try to find the
+        correct URL.
+
+        :returns: a valid API URL or ``None``
         """
         def tester(self, api_url):
             """
             Attempts to fetch general information about the MediaWiki instance
-            in order to test whether the given URL will return JSON.
+            in order to test whether *api_url* will return JSON.
             """
             data = self._fetch_http(api_url, {'action': 'query',
                                               'meta': 'siteinfo'})
@@ -134,32 +178,46 @@ class MediaWiki():
                 if test_data_json:
                     self._api_url = test_api_url
                     return self._api_url
-            return False
+            return None
 
+    def login(self, user, passwd):
+        """
+        Logs into the wiki with username *user* and password *passwd*. Returns
+        ``True`` on successful login.
 
-    def login(self, user, passwd, token=None):
+        :param user: username
+        :param passwd: password
+        :returns: ``True`` on successful login, otherwise ``False``
         """
-        Convenience function for logging into the wiki. It should never be
-        necessary to provide a token argument; it is part of the login process
-        since MediaWiki 1.15.3 (see MediaWiki bug 23076).
-        """
-        data = {'action': 'login',
-                'lgname': user,
-                'lgpassword': passwd}
-        if token:
-            data['lgtoken'] = token
-        result = self.call(data)
-        if result['login']['result'] == 'Success':
-            self._high_limits = None
-            return True
-        elif result['login']['result'] == 'NeedToken' and not token:
-            return self.login(user, passwd, result['login']['token'])
-        else:
-            return False
+        def do_login(self, user, passwd, token=None):
+            """
+            Login function that handles CSRF protection (see `MediaWiki bug
+            23076`_). Returns ``True`` on successful login.
+
+            .. _`MediaWiki bug 23076`:
+                https://bugzilla.wikimedia.org/show_bug.cgi?id=23076
+            """
+            data = {'action': 'login',
+                    'lgname': user,
+                    'lgpassword': passwd}
+            if token:
+                data['lgtoken'] = token
+            result = self.call(data)
+            if result['login']['result'] == 'Success':
+                self._high_limits = None
+                return True
+            elif result['login']['result'] == 'NeedToken' and not token:
+                return do_login(self, user, passwd, result['login']['token'])
+            else:
+                return False
+
+        return do_login(self, user, passwd)
 
     def logout(self):
         """
-        Conveinence function for logging out of the wiki.
+        Logs out of the wiki.
+
+        :returns: ``True``
         """
         data = {'action': 'logout'}
         self.call(data)
@@ -169,8 +227,17 @@ class MediaWiki():
     def limits(self, low, high):
         """
         Convenience function for determining appropriate limits in the API. If
-        the logged in user has the "apihighlimits" right, it will return the
-        high argument; otherwise it will return the low argument.
+        the (usually logged-in) client has the ``apihighlimits`` right, it will
+        return *high*; otherwise it will return *low*.
+
+        It's generally a good idea to use the highest limit possible; this
+        reduces the amount of HTTP requests and therefore overhead. Read the
+        API documentation for details on the limits for the function you are
+        using.
+
+        :param low: value to return if client does not have ``apihighlimits``
+        :param high: value to return if client has ``apihighlimits``
+        :returns: *low* or *high*
         """
         if self._high_limits == None:
             result = self.call({'action': 'query',
@@ -185,7 +252,14 @@ class MediaWiki():
 
     def namespaces(self, psuedo=True):
         """
-        Fetches a list of namespaces for this wiki.
+        Fetches a list of namespaces for this wiki and returns them as a
+        dictionary of namespace IDs corresponding to namespace names. If
+        *psuedo* is ``True``, the dictionary will also list psuedo-namespaces,
+        which are the "Special:" and "Media:" namespaces (special because they
+        have no content associated with them and their IDs are negative).
+
+        :param psuedo: boolean to determine inclusion of psuedo-namespaces
+        :returns: dictionary of namespace IDs and names
         """
         if self._namespaces == None:
             result = self.call({'action': 'query',
@@ -211,7 +285,31 @@ class MediaWiki():
     @staticmethod
     def parse_date(date):
         """
-        Converts dates provided by the MediaWiki API into datetime.datetime
-        objects.
+        Converts `ISO 8601`_ dates generated by the MediaWiki API into
+        :py:class:`datetime.datetime` objects.
+
+        .. _`ISO 8601`: http://en.wikipedia.org/wiki/ISO_8601
+
+        :param date: string ISO 8601 date representation
+        :returns: :py:class:`datetime.datetime` object
         """
         return iso8601.parse_date(date)
+
+
+def build_user_agent(application_name, version, url):
+    """
+    Build a good User-Agent header string that can help server administrators
+    contact you if your application is misbehaving. This string will also
+    contain a reference to python-simplemediawiki.
+
+    See the documentation for :py:class:`simplemediawiki.MediaWiki` for good
+    reasons why you should use a custom User-Agent string for your application.
+
+    :param application_name: your application's name
+    :param version: your application's version
+    :param url: a URL where smoeone can find information about your \
+            application or your email address
+    :returns: User-Agent string
+    """
+    return '%s/%s %s/%s (+%s)' % (application_name, version,
+                                  'python-simplemediawiki', __version__, url)

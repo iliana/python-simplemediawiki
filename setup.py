@@ -1,6 +1,11 @@
 from distutils.core import setup
+from sphinx.setup_command import BuildDoc
+
+version = '1.0.2'
+
+cmdclass = {'build_sphinx': BuildDoc}
 setup(name='simplemediawiki',
-      version='1.0.2',
+      version=version,
       description='Extremely low-level wrapper to the MediaWiki API',
       author='Ian Weller',
       author_email='ian@ianweller.org',
@@ -15,4 +20,11 @@ setup(name='simplemediawiki',
           'iso8601',
           'kitchen',
       ],
-      py_modules=['simplemediawiki'])
+      py_modules=['simplemediawiki'],
+      cmdclass=cmdclass,
+      command_options={
+          'build_sphinx': {
+              'version': ('setup.py', version),
+              'release': ('setup.py', version),
+          }
+      })
