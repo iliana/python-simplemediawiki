@@ -1,5 +1,6 @@
 # python-simplemediawiki - Extremely low-level wrapper to the MediaWiki API
 # Copyright (C) 2011 Red Hat, Inc.
+# Primary maintainer: Ian Weller <iweller@redhat.com>
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -43,7 +44,7 @@ from StringIO import StringIO
 import urllib
 import urllib2
 
-__author__ = 'Ian Weller <ian@ianweller.org>'
+__author__ = 'Ian Weller <iweller@redhat.com>'
 __version__ = '1.0.2'
 DEFAULT_UA = ('python-simplemediawiki/%s '
               '+https://github.com/ianweller/python-simplemediawiki') \
