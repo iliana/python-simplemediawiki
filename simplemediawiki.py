@@ -70,7 +70,7 @@ class MediaWiki():
         self._opener = urllib2.build_opener(
                 urllib2.HTTPCookieProcessor(self._cj)
         )
-        self._opener.addheaders = [('User-agent', user_agent)]
+        self._opener.addheaders = [('User-Agent', user_agent)]
 
     def _fetch_http(self, url, params):
         """
