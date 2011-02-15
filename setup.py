@@ -30,6 +30,7 @@ setup(name='simplemediawiki',
       ],
       requires=[
           'kitchen',
+          'simplejson',
       ],
       py_modules=['simplemediawiki'],
       cmdclass=cmdclass,

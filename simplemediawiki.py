@@ -37,7 +37,10 @@ convenience.
 
 import cookielib
 import gzip
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from kitchen.text.converters import to_bytes
 from StringIO import StringIO
 import urllib
