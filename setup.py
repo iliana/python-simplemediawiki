@@ -1,9 +1,21 @@
 from distutils.core import setup
-from sphinx.setup_command import BuildDoc
+
+# If sphinx is installed, enable the command
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass = {'build_sphinx': BuildDoc}
+    command_options = {
+        'build_sphinx': {
+              'version': ('setup.py', version),
+              'release': ('setup.py', version),
+          }
+    }
+except ImportError:
+    cmdclass = {}
+    command_options = {}
 
 version = '1.0.2'
 
-cmdclass = {'build_sphinx': BuildDoc}
 setup(name='simplemediawiki',
       version=version,
       description='Extremely low-level wrapper to the MediaWiki API',
@@ -21,9 +33,4 @@ setup(name='simplemediawiki',
       ],
       py_modules=['simplemediawiki'],
       cmdclass=cmdclass,
-      command_options={
-          'build_sphinx': {
-              'version': ('setup.py', version),
-              'release': ('setup.py', version),
-          }
-      })
+      command_options=command_options)
