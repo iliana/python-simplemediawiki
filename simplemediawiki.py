@@ -53,7 +53,7 @@ DEFAULT_UA = ('python-simplemediawiki/%s '
         % __version__
 
 
-class MediaWiki():
+class MediaWiki(object):
     """
     Create a new object to access a wiki via *api_url*.
 
