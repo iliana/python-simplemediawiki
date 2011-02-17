@@ -1,5 +1,7 @@
 from distutils.core import setup
 
+version = '1.0.2'
+
 # If sphinx is installed, enable the command
 try:
     from sphinx.setup_command import BuildDoc
@@ -13,8 +15,6 @@ try:
 except ImportError:
     cmdclass = {}
     command_options = {}
-
-version = '1.0.2'
 
 setup(name='simplemediawiki',
       version=version,
