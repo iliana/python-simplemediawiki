@@ -47,7 +47,7 @@ import urllib
 import urllib2
 
 __author__ = 'Ian Weller <iweller@redhat.com>'
-__version__ = '1.0.2'
+__version__ = '1.1'
 DEFAULT_UA = ('python-simplemediawiki/%s '
               '+https://github.com/ianweller/python-simplemediawiki') \
         % __version__
