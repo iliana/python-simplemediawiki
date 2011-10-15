@@ -36,6 +36,7 @@ convenience.
 """
 
 import cookielib
+from datetime import datetime
 import gzip
 try:
     import simplejson as json
@@ -302,7 +303,7 @@ class MediaWiki(object):
         # MediaWiki API dates are always of the format
         #   YYYY-MM-DDTHH:MM:SSZ
         # (see $formats in wfTimestamp() in includes/GlobalFunctions.php)
-        return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+        return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
 
 
 def build_user_agent(application_name, version, url):
