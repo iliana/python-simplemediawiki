@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '1.1'
+version = '1.1.1'
 
 # If sphinx is installed, enable the command
 try:
