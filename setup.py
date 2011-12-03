@@ -1,4 +1,7 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 version = '1.1.1'
 
@@ -28,7 +31,7 @@ setup(name='simplemediawiki',
           'License :: OSI Approved :: GNU Library or Lesser General Public '
           'License (LGPL)',
       ],
-      requires=[
+      install_requires=[
           'kitchen',
           'simplejson',
       ],
