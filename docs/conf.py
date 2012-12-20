@@ -11,6 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from __future__ import unicode_literals
+
 import sys, os
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -40,8 +42,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'simplemediawiki'
-copyright = u'2011, Red Hat, Inc'
+project = 'simplemediawiki'
+copyright = '2011, Red Hat, Inc'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -178,8 +180,8 @@ htmlhelp_basename = 'simplemediawikidoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'simplemediawiki.tex', u'simplemediawiki Documentation',
-   u'Ian Weller', 'manual'),
+  ('index', 'simplemediawiki.tex', 'simplemediawiki Documentation',
+   'Ian Weller', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -211,6 +213,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'simplemediawiki', u'simplemediawiki Documentation',
-     [u'Ian Weller'], 1)
+    ('index', 'simplemediawiki', 'simplemediawiki Documentation',
+     ['Ian Weller'], 1)
 ]

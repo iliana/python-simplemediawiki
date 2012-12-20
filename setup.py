@@ -3,7 +3,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = '1.1.1'
+version = '1.1.2'
 
 # If sphinx is installed, enable the command
 try:
@@ -26,6 +26,8 @@ setup(name='simplemediawiki',
       author_email='iweller@redhat.com',
       url='https://github.com/ianweller/python-simplemediawiki',
       classifiers=[
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: GNU Library or Lesser General Public '
