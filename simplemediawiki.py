@@ -70,8 +70,9 @@ class MediaWiki(object):
     Create a new object to access a wiki via *api_url*.
 
     If you're interested in saving session data across multiple
-    :py:class:`MediaWiki` objects, provide a filename *cookie_file* to where
-    you want to save the cookies.
+    :py:class:`MediaWiki` objects, provide a :py:class:`cookielib.CookieJar`
+    object *cookiejar* or filename *cookie_file* to where you want to save the
+    cookies. If *cookiejar* is present *cookie_file* is ignored.
 
     Applications that use simplemediawiki should change the *user_agent*
     argument to something that can help identify the application if it is
@@ -86,7 +87,8 @@ class MediaWiki(object):
        :py:func:`MediaWiki.normalize_api_url`.
 
     :param api_url: URL for the path to the API endpoint
-    :param cookie_file: path to a :py:class:`cookielib.MozillaCookieJar` file
+    :param cookiejar: already-created cookielib.CookieJar object
+    :param cookie_file: path to a :py:class:`cookielib.FileCookieJar` file
     :param user_agent: string sent as ``User-Agent`` header to web server
 
     .. _`User-Agent`: http://en.wikipedia.org/wiki/User_agent
@@ -97,10 +99,13 @@ class MediaWiki(object):
     _namespaces = None
     _psuedo_namespaces = None
 
-    def __init__(self, api_url, cookie_file=None, user_agent=DEFAULT_UA):
+    def __init__(self, api_url, cookie_file=None, cookiejar=None,
+                 user_agent=DEFAULT_UA):
         self._api_url = api_url
-        if cookie_file:
-            self._cj = cookielib.MozillaCookieJar(cookie_file)
+        if cookiejar:
+            self._cj = cookiejar
+        elif cookie_file:
+            self._cj = cookielib.FileCookieJar(cookie_file)
             try:
                 self._cj.load()
             except IOError:
@@ -135,7 +140,7 @@ class MediaWiki(object):
         request = urllib2.Request(url, fixed)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
-        if isinstance(self._cj, cookielib.MozillaCookieJar):
+        if isinstance(self._cj, cookielib.FileCookieJar):
             self._cj.save()
         if response.headers.get('Content-Encoding') == 'gzip':
             compressed = StringIO(response.read())
