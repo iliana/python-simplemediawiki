@@ -1,5 +1,5 @@
 python-simplemediawiki - Extremely low-level wrapper to the MediaWiki API
-Copyright (C) 2011 Red Hat, Inc.
+Copyright (C) 2013 Red Hat, Inc. and others.
 Primary maintainer: Ian Weller <iweller@redhat.com>
 
 This library is free software; you can redistribute it and/or modify it under

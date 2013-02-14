@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'simplemediawiki'
-copyright = '2011, Red Hat, Inc'
+copyright = '2013, Red Hat, Inc. and others'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
