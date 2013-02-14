@@ -117,7 +117,7 @@ class MediaWiki(object):
             urllib2.HTTPCookieProcessor(self._cj))
         self._opener.addheaders = [('User-Agent', user_agent)]
 
-    def _fetch_http(self, url, params):
+    def _fetch_http(self, url, params, force_get=False):
         """
         Standard HTTP request handler for this class with gzip and cookie
         support. This was separated out of :py:func:`MediaWiki.call` to make
@@ -129,6 +129,7 @@ class MediaWiki(object):
 
         :param url: URL to send POST request to
         :param params: dictionary of query string parameters
+        :param force_get: force a GET request instead of POST
         """
         params['format'] = 'json'
         if sys.version_info[0] == 3:
@@ -137,7 +138,12 @@ class MediaWiki(object):
         elif sys.version_info[0] == 2:
             fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in
                                       params.items()]).encode("utf-8")
-        request = urllib2.Request(url, fixed)
+        if force_get:
+            request = urllib2.Request(url + '?' + fixed)
+        else:
+            if sys.version_info[0] == 3:
+                fixed = bytearray(fixed, 'utf-8')
+            request = urllib2.Request(url, fixed)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
         if isinstance(self._cj, cookielib.FileCookieJar):
