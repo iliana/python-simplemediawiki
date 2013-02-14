@@ -41,10 +41,13 @@ from __future__ import unicode_literals, print_function
 import sys
 import gzip
 from datetime import datetime
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 if sys.version_info[0] == 3:
     import http.cookiejar as cookielib
-    import json
     from io import BytesIO as StringIO
     import urllib.request as urllib2
     import urllib.parse as urllib
@@ -52,10 +55,6 @@ if sys.version_info[0] == 3:
         return getattr(s, "encode", lambda b: s)("utf-8")
 elif sys.version_info[0] == 2:
     import cookielib
-    try:
-        import simplejson as json
-    except ImportError:
-        import json
     from kitchen.text.converters import to_bytes
     from StringIO import StringIO
     import urllib
