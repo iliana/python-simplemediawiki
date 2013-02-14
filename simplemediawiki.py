@@ -51,9 +51,6 @@ if sys.version_info[0] == 3:
     from io import BytesIO as StringIO
     import urllib.request as urllib2
     import urllib.parse as urllib
-
-    def to_bytes(s):
-        return getattr(s, "encode", lambda b: s)("utf-8")
 elif sys.version_info[0] == 2:
     import cookielib
     from kitchen.text.converters import to_bytes
@@ -130,9 +127,12 @@ class MediaWiki(object):
         :param params: dictionary of query string parameters
         """
         params['format'] = 'json'
-        # urllib.urlencode expects str objects, not unicode
-        fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in
-                                  params.items()]).encode("utf-8")
+        if sys.version_info[0] == 3:
+            fixed = urllib.urlencode(tuple(params.items()))
+        # urllib.urlencode (in Python 2) expects str objects, not unicode
+        elif sys.version_info[0] == 2:
+            fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in
+                                      params.items()]).encode("utf-8")
         request = urllib2.Request(url, fixed)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
