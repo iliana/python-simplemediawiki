@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # python-simplemediawiki - Extremely low-level wrapper to the MediaWiki API
 # Copyright (C) 2013 Red Hat, Inc. and others.
 # Primary maintainer: Ian Weller <iweller@redhat.com>
