@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # python-simplemediawiki - Extremely low-level wrapper to the MediaWiki API
 # Copyright (C) 2011 Red Hat, Inc.
 # Primary maintainer: Ian Weller <iweller@redhat.com>
@@ -35,23 +36,37 @@ convenience.
 .. _`MediaWiki API`: http://www.mediawiki.org/wiki/API:Main_page
 """
 
-import cookielib
-from datetime import datetime
+from __future__ import unicode_literals, print_function
+
+import sys
 import gzip
-try:
-    import simplejson as json
-except ImportError:
+from datetime import datetime
+
+if sys.version_info[0] == 3:
+    import http.cookiejar as cookielib
     import json
-from kitchen.text.converters import to_bytes
-from StringIO import StringIO
-import urllib
-import urllib2
+    from io import BytesIO as StringIO
+    import urllib.request as urllib2
+    import urllib.parse as urllib
+    def to_bytes(s):
+        return getattr(s, "encode", lambda b: s)("utf-8")
+elif sys.version_info[0] == 2:
+    import cookielib
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
+    from kitchen.text.converters import to_bytes
+    from StringIO import StringIO
+    import urllib
+    import urllib2
+else:
+    raise SystemExit("Your Python is severely out of date.")
 
 __author__ = 'Ian Weller <iweller@redhat.com>'
-__version__ = '1.1.1'
-DEFAULT_UA = ('python-simplemediawiki/%s '
-              '+https://github.com/ianweller/python-simplemediawiki') \
-        % __version__
+__version__ = '1.1.2'
+DEFAULT_UA = " ".join(('python-simplemediawiki/{0}'.format(__version__),
+                      '+https://github.com/ianweller/python-simplemediawiki'))
 
 
 class MediaWiki(object):
@@ -117,9 +132,8 @@ class MediaWiki(object):
         """
         params['format'] = 'json'
         # urllib.urlencode expects str objects, not unicode
-        fixed = dict([(to_bytes(b[0]), to_bytes(b[1]))
-                      for b in params.items()])
-        request = urllib2.Request(url, urllib.urlencode(fixed))
+        fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in params.items()]).encode("utf-8")
+        request = urllib2.Request(url, fixed)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
         if isinstance(self._cj, cookielib.MozillaCookieJar):
@@ -130,6 +144,9 @@ class MediaWiki(object):
             data = gzipper.read()
         else:
             data = response.read()
+        if sys.version_info[0] == 3:
+            encoding = response.info().get_content_charset() or "ISO-8859-1"
+            data = data.decode(encoding)
         return data
 
     def call(self, params):
@@ -176,9 +193,9 @@ class MediaWiki(object):
             # if there's an index.php in the URL, we might find the API
             if 'index.php' in self._api_url:
                 test_api_url = self._api_url.split('index.php')[0] + 'api.php'
-                print test_api_url
+                print(test_api_url)
                 test_data, test_data_json = tester(self, test_api_url)
-                print (test_data, test_data_json)
+                print(test_data, test_data_json)
                 if test_data_json:
                     self._api_url = test_api_url
                     return self._api_url
@@ -243,7 +260,7 @@ class MediaWiki(object):
         :param high: value to return if client has ``apihighlimits``
         :returns: *low* or *high*
         """
-        if self._high_limits == None:
+        if self._high_limits is None:
             result = self.call({'action': 'query',
                                 'meta': 'userinfo',
                                 'uiprop': 'rights'})
@@ -321,5 +338,6 @@ def build_user_agent(application_name, version, url):
             application or your email address
     :returns: User-Agent string
     """
-    return '%s/%s %s/%s (+%s)' % (application_name, version,
-                                  'python-simplemediawiki', __version__, url)
+    return '{0}/{1} {2}/{3} (+{4})'.format(application_name, version,
+                                           'python-simplemediawiki',
+                                           __version__, url)
