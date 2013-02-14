@@ -35,7 +35,7 @@ convenience.
 .. _`MediaWiki API`: http://www.mediawiki.org/wiki/API:Main_page
 """
 
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals
 
 import sys
 import gzip
@@ -192,9 +192,7 @@ class MediaWiki(object):
             # if there's an index.php in the URL, we might find the API
             if 'index.php' in self._api_url:
                 test_api_url = self._api_url.split('index.php')[0] + 'api.php'
-                print(test_api_url)
                 test_data, test_data_json = tester(self, test_api_url)
-                print(test_data, test_data_json)
                 if test_data_json:
                     self._api_url = test_api_url
                     return self._api_url
