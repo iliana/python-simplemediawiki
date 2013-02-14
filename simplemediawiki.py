@@ -51,6 +51,7 @@ if sys.version_info[0] == 3:
     from io import BytesIO as StringIO
     import urllib.request as urllib2
     import urllib.parse as urllib
+
     def to_bytes(s):
         return getattr(s, "encode", lambda b: s)("utf-8")
 elif sys.version_info[0] == 2:
@@ -65,7 +66,7 @@ else:
 __author__ = 'Ian Weller <iweller@redhat.com>'
 __version__ = '1.1.2'
 DEFAULT_UA = " ".join(('python-simplemediawiki/{0}'.format(__version__),
-                      '+https://github.com/ianweller/python-simplemediawiki'))
+                       '+https://github.com/ianweller/python-simplemediawiki'))
 
 
 class MediaWiki(object):
@@ -112,8 +113,7 @@ class MediaWiki(object):
         else:
             self._cj = cookielib.CookieJar()
         self._opener = urllib2.build_opener(
-                urllib2.HTTPCookieProcessor(self._cj)
-        )
+            urllib2.HTTPCookieProcessor(self._cj))
         self._opener.addheaders = [('User-Agent', user_agent)]
 
     def _fetch_http(self, url, params):
@@ -131,7 +131,8 @@ class MediaWiki(object):
         """
         params['format'] = 'json'
         # urllib.urlencode expects str objects, not unicode
-        fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in params.items()]).encode("utf-8")
+        fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in
+                                  params.items()]).encode("utf-8")
         request = urllib2.Request(url, fixed)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
@@ -264,7 +265,7 @@ class MediaWiki(object):
                                 'meta': 'userinfo',
                                 'uiprop': 'rights'})
             self._high_limits = 'apihighlimits' in \
-                    result['query']['userinfo']['rights']
+                result['query']['userinfo']['rights']
         if self._high_limits:
             return high
         else:
@@ -281,7 +282,7 @@ class MediaWiki(object):
         :param psuedo: boolean to determine inclusion of psuedo-namespaces
         :returns: dictionary of namespace IDs and names
         """
-        if self._namespaces == None:
+        if self._namespaces is None:
             result = self.call({'action': 'query',
                                 'meta': 'siteinfo',
                                 'siprop': 'namespaces'})
@@ -290,10 +291,10 @@ class MediaWiki(object):
             for nsid in result['query']['namespaces']:
                 if int(nsid) >= 0:
                     self._namespaces[int(nsid)] = \
-                            result['query']['namespaces'][nsid]['*']
+                        result['query']['namespaces'][nsid]['*']
                 else:
                     self._psuedo_namespaces[int(nsid)] = \
-                            result['query']['namespaces'][nsid]['*']
+                        result['query']['namespaces'][nsid]['*']
         if psuedo:
             retval = {}
             retval.update(self._namespaces)
