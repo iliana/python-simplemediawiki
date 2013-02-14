@@ -144,7 +144,7 @@ class MediaWiki(object):
         else:
             data = response.read()
         if sys.version_info[0] == 3:
-            encoding = response.info().get_content_charset() or "ISO-8859-1"
+            encoding = response.info().get_content_charset() or "utf-8"
             data = data.decode(encoding)
         return data
 
