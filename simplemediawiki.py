@@ -39,6 +39,7 @@ from __future__ import unicode_literals
 
 import sys
 import gzip
+import base64
 from datetime import datetime
 try:
     import simplejson as json
@@ -100,8 +101,10 @@ class MediaWiki(object):
     _psuedo_namespaces = None
 
     def __init__(self, api_url, cookie_file=None, cookiejar=None,
-                 user_agent=DEFAULT_UA):
+                 user_agent=DEFAULT_UA, http_user=None, http_password=None):
         self._api_url = api_url
+        self._http_user = http_user
+        self._http_password = http_password
         if cookiejar:
             self._cj = cookiejar
         elif cookie_file:
@@ -144,6 +147,12 @@ class MediaWiki(object):
             if sys.version_info[0] == 3:
                 fixed = bytearray(fixed, 'utf-8')
             request = urllib2.Request(url, fixed)
+        if self._http_user is not None:
+            auth_str = '%s:%s' % (self._http_user, self._http_password)
+            if sys.version_info[0] == 3:
+                auth_str = bytearray(auth_str, 'utf-8')
+            base64string = base64.encodestring(auth_str).replace('\n', '')
+            request.add_header("Authorization", "Basic %s" % base64string)
         request.add_header('Accept-encoding', 'gzip')
         response = self._opener.open(request)
         if isinstance(self._cj, cookielib.FileCookieJar):
