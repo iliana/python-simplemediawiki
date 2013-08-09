@@ -1,5 +1,4 @@
 # coding=utf-8
-from __future__ import unicode_literals
 
 import simplemediawiki
 import sys
@@ -9,12 +8,12 @@ try:
 except ImportError:
     import json
 
-if sys.version_info[0] == 3:
+try:
     import http.cookiejar as cookielib
-elif sys.version_info[0] == 2:
+except ImportError:
     import cookielib
 
-UNICODE_TEST = 'κόσμε'
+UNICODE_TEST = u'κόσμε'
 
 
 class FetchHttpTest(unittest.TestCase):
