@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import simplemediawiki
-import sys
 import unittest
 try:
     import simplejson as json
