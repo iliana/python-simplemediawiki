@@ -70,6 +70,7 @@ class FetchHttpTest(unittest.TestCase):
                                         user_agent=self.user_agent)
         mw1._fetch_http('https://httpbin.org/cookies/set',
                         {'unicode': UNICODE_TEST}, force_get=True)
+        cookiejar = mw1._cj
         mw2 = simplemediawiki.MediaWiki('https://httpbin.org/',
                                         cookiejar=cookiejar,
                                         user_agent=self.user_agent)
