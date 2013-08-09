@@ -34,23 +34,23 @@ class FetchHttpTest(unittest.TestCase):
                                               {'butts': 'lol',
                                                'unicode': UNICODE_TEST},
                                               force_get=True))
-        assert data['args']['format'] == 'json'
-        assert data['args']['unicode'] == UNICODE_TEST
+        self.assertEqual(data['args']['format'], 'json')
+        self.assertEqual(data['args']['unicode'], UNICODE_TEST)
 
     def test_post(self):
         self._do_post()
-        assert self.data is not None
-        assert self.data['form']['format'] == 'json'
-        assert self.data['form']['unicode'] == UNICODE_TEST
+        self.assertTrue(self.data is not None)
+        self.assertEqual(self.data['form']['format'], 'json')
+        self.assertEqual(self.data['form']['unicode'], UNICODE_TEST)
 
     def test_user_agent(self):
         self._do_post()
-        assert self.data['headers']['User-Agent'] == self.user_agent
+        self.assertEqual(self.data['headers']['User-Agent'], self.user_agent)
 
     def test_gzip(self):
         data = json.loads(self.mw._fetch_http('https://httpbin.org/gzip', {},
                                               force_get=True))
-        assert data['gzipped'] == True
+        self.assertEqual(data['gzipped'], True)
 
     def test_cookies(self):
         self.mw._fetch_http('https://httpbin.org/cookies/set',
@@ -58,8 +58,8 @@ class FetchHttpTest(unittest.TestCase):
                             force_get=True)
         data = json.loads(self.mw._fetch_http('https://httpbin.org/cookies', {},
                                               force_get=True))
-        assert 'unicode' in data['cookies']
-        assert data['cookies']['unicode'] == UNICODE_TEST
+        self.assertTrue('unicode' in data['cookies'])
+        self.assertEqual(data['cookies']['unicode'], UNICODE_TEST)
 
     def test_persistent_cookiejar(self):
         cookiejar = cookielib.CookieJar()
@@ -75,5 +75,5 @@ class FetchHttpTest(unittest.TestCase):
         data = json.loads(mw2._fetch_http('https://httpbin.org/cookies', {},
                                           force_get=True))
         print(data)
-        assert 'unicode' in data['cookies']
-        assert data['cookies']['unicode'] == UNICODE_TEST
+        self.assertTrue('unicode' in data['cookies'])
+        self.assertEqual(data['cookies']['unicode'], UNICODE_TEST)
