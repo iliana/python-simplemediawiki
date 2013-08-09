@@ -35,8 +35,6 @@ convenience.
 .. _`MediaWiki API`: http://www.mediawiki.org/wiki/API:Main_page
 """
 
-from __future__ import unicode_literals
-
 import sys
 import gzip
 import base64
@@ -139,8 +137,9 @@ class MediaWiki(object):
             fixed = urllib.urlencode(tuple(params.items()))
         # urllib.urlencode (in Python 2) expects str objects, not unicode
         elif sys.version_info[0] == 2:
-            fixed = urllib.urlencode([tuple(map(to_bytes, s)) for s in
-                                      params.items()]).encode("utf-8")
+            fixed = urllib.urlencode(
+                tuple((to_bytes(k), to_bytes(v)) for k, v in
+                      params.items())).encode('utf-8')
         if force_get:
             request = urllib2.Request(url + '?' + fixed)
         else:
