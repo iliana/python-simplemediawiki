@@ -3,6 +3,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
+version='1.2.0b1'
 cmdclass = {}
 command_options = {}
 install_requires = []
@@ -22,7 +23,7 @@ if sys.version_info[0] == 2:
     install_requires.append('kitchen')
 
 setup(name='simplemediawiki',
-      version='1.2.0b1',
+      version=version,
       description='Extremely low-level wrapper to the MediaWiki API',
       author='Ian Weller',
       author_email='iweller@redhat.com',
