@@ -59,7 +59,7 @@ else:
     raise SystemExit("Your Python is severely out of date.")
 
 __author__ = 'Ian Weller <iweller@redhat.com>'
-__version__ = '1.2.0b1'
+__version__ = '1.2.0b2'
 DEFAULT_UA = " ".join(('python-simplemediawiki/{0}'.format(__version__),
                        '+https://github.com/ianweller/python-simplemediawiki'))
 

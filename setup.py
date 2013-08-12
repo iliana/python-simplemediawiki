@@ -4,7 +4,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version='1.2.0b1'
+version='1.2.0b2'
 cmdclass = {}
 command_options = {}
 install_requires = []
