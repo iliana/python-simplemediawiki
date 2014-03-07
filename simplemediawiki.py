@@ -106,7 +106,7 @@ class MediaWiki(object):
         if cookiejar:
             self._cj = cookiejar
         elif cookie_file:
-            self._cj = cookielib.FileCookieJar(cookie_file)
+            self._cj = cookielib.LWPCookieJar(cookie_file)
             try:
                 self._cj.load()
             except IOError:
