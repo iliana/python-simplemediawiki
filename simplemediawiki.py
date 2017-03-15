@@ -1,6 +1,6 @@
 # python-simplemediawiki - Extremely low-level wrapper to the MediaWiki API
 # Copyright (C) 2013 Red Hat, Inc. and others.
-# Primary maintainer: Ian Weller <iweller@redhat.com>
+# See the AUTHORS file for credits.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -58,10 +58,9 @@ elif sys.version_info[0] == 2:
 else:
     raise SystemExit("Your Python is severely out of date.")
 
-__author__ = 'Ian Weller <iweller@redhat.com>'
 __version__ = '1.1.2'
 DEFAULT_UA = " ".join(('python-simplemediawiki/{0}'.format(__version__),
-                       '+https://github.com/ianweller/python-simplemediawiki'))
+                       '+https://github.com/ilianaw/python-simplemediawiki'))
 
 
 class MediaWiki(object):
